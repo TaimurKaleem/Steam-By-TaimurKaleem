@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Steam Games — By TaimurKaleem</title>
+  <style>
+    :root{
+      --bg:#0f1720;
+      --card:#0f1b2a;
+      --muted:#97a6b2;
+      --accent:#1f8feb;
+      --glass: rgba(255,255,255,0.04);
+      --danger: #ff6b6b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#071122 0%, #081826 60%);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:32px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:24px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .logo{
+      width:56px;height:56px;border-radius:10px;
+      background:linear-gradient(135deg,#2fb7ff,#6a4cff);
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:#021022;font-size:20px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+    h1{font-size:20px;margin:0}
+    p.sub{margin:0;color:var(--muted);font-size:13px}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+      gap:18px;
+      margin-top:14px;
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), var(--glass));
+      border-radius:12px;
+      padding:12px;
+      box-shadow: 0 6px 18px rgba(2,6,14,0.6);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover{ transform: translateY(-6px); box-shadow: 0 14px 28px rgba(3,8,18,0.7); }
+
+    .thumb{
+      width:100%; height:130px; border-radius:8px; overflow:hidden;
+      background-size:cover; background-position:center;
+    }
+    .meta{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .title{ font-weight:600; font-size:15px; }
+    .price{ font-weight:700; font-size:15px; color:var(--accent); }
+    .desc{ color:var(--muted); font-size:13px; margin-top:4px; min-height:36px; }
+
+    .actions{ display:flex; gap:8px; margin-top:auto; }
+    .btn{
+      padding:8px 12px; border-radius:10px; cursor:pointer;
+      border: none; font-weight:600; font-size:13px;
+      background: rgba(255,255,255,0.03); color:inherit;
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.02);
+    }
+    .btn.buy{ background: linear-gradient(90deg,var(--accent), #6a9cff); color:#021026; }
+    .btn.info{ background: transparent; border: 1px solid rgba(255,255,255,0.04); color:var(--muted); }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:rgba(2,6,10,0.6); z-index:40; padding:20px;
+    }
+    .dialog{
+      width:100%; max-width:520px; background:linear-gradient(180deg,#071827, #081a2a);
+      border-radius:12px; padding:20px; box-shadow: 0 30px 80px rgba(2,6,12,0.7); color:#eaf6ff;
+    }
+    .dialog h2{margin:0 0 8px 0}
+    .row{ display:flex; gap:10px; margin-top:10px; }
+    .input, .select{
+      width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.02); color:inherit; outline:none; font-size:14px;
+    }
+    .small{ width:50%; }
+    .note{ color:var(--muted); font-size:13px; margin-top:8px; }
+
+    .message{
+      margin-top:12px; padding:10px 12px; border-radius:8px; background: rgba(255,255,255,0.03); color:#ffd6d6;
+      border:1px solid rgba(255,107,107,0.12); display:none;
+    }
+
+    .invalid-shake{
+      animation: shake .6s;
+    }
+    @keyframes shake{
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
+
+    footer{ margin-top:28px; color:var(--muted); font-size:13px; text-align:center }
+    @media (max-width:520px){
+      .row{ flex-direction:column; }
+      .small{ width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">TK</div>
+      <div>
+        <h1>Steam Games — By TaimurKaleem</h1>
+        <p class="sub">Demo storefront • client-only — card entry always shows "Invalid card number"</p>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-weight:600">Demo Mode</div>
+      <div class="sub">No real payments — for testing only</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid" id="catalog">
+      <!-- Cards will be injected by JS -->
+    </section>
+
+    <div class="modal-backdrop" id="modal">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+        <h2 id="dialogTitle">Enter Card Details</h2>
+        <div id="productLine" style="color:var(--muted);font-size:14px">Buying: <strong id="buyGameName"></strong> — <span id="buyGamePrice"></span></div>
+
+        <div style="margin-top:12px;">
+          <label class="note">Card Number</label>
+          <input class="input" id="cardNumber" inputmode="numeric" placeholder="1234 5678 9012 3456" maxlength="23" />
+        </div>
+
+        <div class="row">
+          <div class="small">
+            <label class="note">Expiry</label>
+            <input class="input" id="cardExpiry" placeholder="MM/YY" maxlength="5" />
+          </div>
+          <div class="small">
+            <label class="note">CVC</label>
+            <input class="input" id="cardCvc" placeholder="123" maxlength="4" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:14px;">
+          <button class="btn buy" id="submitCard">Pay Now</button>
+          <button class="btn info" id="cancel">Cancel</button>
+        </div>
+
+        <div class="message" id="messageBox" role="status"></div>
+
+        <p class="note" style="margin-top:12px">
+          <strong>Important:</strong> This is a client-side demo. Card details are not sent anywhere. This demo will always display <em>Invalid card number</em>.
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      Built for demo & testing by <strong>TaimurKaleem</strong>. Images from Unsplash placeholders.
+    </footer>
+  </main>
+
+  <script>
+    // Demo catalog data
+    const games = [
+      {
+        id: 'insomniac-odyssey',
+        name: 'Insomniac Odyssey',
+        price: 'PKR 2,499',
+        img: 'https://images.unsplash.com/photo-1606813902792-3b63a5b1d94d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=3a3f5e9b25c8d6d9c9b7edbaf6a3a6b4'
+      },
+      {
+        id: 'neon-racers',
+        name: 'Neon Racers',
+        price: 'PKR 1,199',
+        img: 'https://images.unsplash.com/photo-1544775932-2d8b8ba5f3de?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=6d1c226cbdcaf8f3ef676d2e17b3d6a9'
+      },
+      {
+        id: 'sword-of-ancients',
+        name: 'Sword of Ancients',
+        price: 'PKR 3,799',
+        img: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9f0fb0c5df0bf2a8c5a2ba6b87ee2f3d'
+      },
+      {
+        id: 'island-survivor',
+        name: 'Island Survivor',
+        price: 'PKR 899',
+        img: 'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=5b9f0ccda5d5b989f3e2e09d1f3be4b5'
+      },
+      {
+        id: 'cosmic-frontier',
+        name: 'Cosmic Frontier',
+        price: 'PKR 2,149',
+        img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=a9e17a0c86c6b9c23a3a8f6b7f2b4d6b'
+      }
+    ];
+
+    const catalogEl = document.getElementById('catalog');
+    const modal = document.getElementById('modal');
+    const buyGameName = document.getElementById('buyGameName');
+    const buyGamePrice = document.getElementById('buyGamePrice');
+    const submitCard = document.getElementById('submitCard');
+    const cancelBtn = document.getElementById('cancel');
+    const messageBox = document.getElementById('messageBox');
+    const cardNumberInput = document.getElementById('cardNumber');
+    let activeGame = null;
+
+    // Render cards
+    function renderCatalog(){
+      catalogEl.innerHTML = '';
+      games.forEach(g => {
+        const el = document.createElement('article');
+        el.className = 'card';
+        el.innerHTML = `
+          <div class="thumb" style="background-image:url('${g.img}')"></div>
+          <div class="meta">
+            <div class="title">${g.name}</div>
+            <div class="price">${g.price}</div>
+          </div>
+          <div class="desc">A thrilling demo game. Beautiful visuals and engaging gameplay. (Demo listing)</div>
+          <div class="actions">
+            <button class="btn buy" data-buy="${g.id}">Buy</button>
+            <button class="btn info" data-info="${g.id}">Details</button>
+          </div>
+        `;
+        catalogEl.appendChild(el);
+      });
+    }
+
+    // Show modal with selected game
+    function openBuyModal(gameId){
+      const game = games.find(x => x.id === gameId);
+      if(!game) return;
+      activeGame = game;
+      buyGameName.textContent = game.name;
+      buyGamePrice.textContent = game.price;
+      cardNumberInput.value = '';
+      document.getElementById('cardExpiry').value = '';
+      document.getElementById('cardCvc').value = '';
+      messageBox.style.display = 'none';
+      modal.style.display = 'flex';
+      // focus
+      cardNumberInput.focus();
+    }
+
+    function closeModal(){
+      modal.style.display = 'none';
+      activeGame = null;
+      messageBox.textContent = '';
+      messageBox.style.display = 'none';
+      messageBox.classList.remove('invalid-shake');
+    }
+
+    // Always show "Invalid card number" as per user request (demo)
+    function showInvalidCard(){
+      messageBox.style.display = 'block';
+      messageBox.textContent = 'Invalid card number — payment failed.';
+      messageBox.classList.remove('invalid-shake');
+      // reflow then add class to animate
+      void messageBox.offsetWidth;
+      messageBox.classList.add('invalid-shake');
+    }
+
+    // Event delegation for buy buttons
+    catalogEl.addEventListener('click', (e) => {
+      const buyId = e.target.getAttribute('data-buy');
+      const infoId = e.target.getAttribute('data-info');
+      if(buyId) openBuyModal(buyId);
+      if(infoId){
+        const g = games.find(x => x.id === infoId);
+        alert(g.name + '\\nPrice: ' + g.price + '\\nThis is a demo product listing.');
+      }
+    });
+
+    // clicking outside dialog closes modal (but not when clicking inside)
+    modal.addEventListener('click', (ev) => {
+      if(ev.target === modal) closeModal();
+    });
+
+    cancelBtn.addEventListener('click', closeModal);
+
+    // Simple formatting for card number input (adds spaces every 4 digits)
+    cardNumberInput.addEventListener('input', function(e){
+      let v = this.value.replace(/\D/g,'').slice(0,16);
+      let parts = v.match(/.{1,4}/g);
+      this.value = parts ? parts.join(' ') : v;
+    });
+
+    // Submit payment (demo) — always show invalid card
+    submitCard.addEventListener('click', function(){
+      // read fields (not sent anywhere)
+      const cardNum = cardNumberInput.value.trim();
+      const expiry = document.getElementById('cardExpiry').value.trim();
+      const cvc = document.getElementById('cardCvc').value.trim();
+
+      // Basic client-side checks (not real validation) then show invalid message anyway
+      if(!cardNum || cardNum.replace(/\s/g,'').length < 12){
+        showInvalidCard();
+        return;
+      }
+
+      // Simulate network / processing delay for realism (but still client-side)
+      submitCard.disabled = true;
+      submitCard.textContent = 'Processing...';
+      setTimeout(() => {
+        submitCard.disabled = false;
+        submitCard.textContent = 'Pay Now';
+        showInvalidCard();
+      }, 900);
+    });
+
+    // Prevent form-like enter key from submitting anything
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && modal.style.display === 'flex'){
+        e.preventDefault();
+        submitCard.click();
+      }
+    });
+
+    // Insert cards on load
+    renderCatalog();
+  </script>
+</body>
+</html>
